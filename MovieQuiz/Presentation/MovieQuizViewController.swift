@@ -106,7 +106,6 @@ final class MovieQuizViewController: UIViewController {
             show(quiz: result)
         } else {
             currentQuestionIndex += 1
-            imageView.layer.borderColor = UIColor.clear.cgColor
             
             let nextQuestion = questions [currentQuestionIndex]
             let viewModel = convert(model: nextQuestion)
@@ -143,6 +142,7 @@ final class MovieQuizViewController: UIViewController {
             image: UIImage(named: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questions.count)")
+        imageView.layer.borderColor = UIColor.clear.cgColor
         return questionStep
     }
 }
