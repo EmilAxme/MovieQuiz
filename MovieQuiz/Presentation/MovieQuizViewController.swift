@@ -59,32 +59,14 @@ final class MovieQuizViewController: UIViewController {
             image: "Vivarium",
             text: "Рейтинг этого фильма больше чем 6?",
             correctAnswer: false)
-    ]
-    
-    private struct QuizQuestion {
-        let image: String
-        let text: String
-        let correctAnswer: Bool
-    }
-    
-    struct QuizStepViewModel {
-        let image: UIImage
-        let question: String
-        let questionNumber: String
-    }
-    
-    struct QuizResultsViewModel {
-        let title: String
-        let text: String
-        let buttonText: String
-    }
+        ]
     
     override func viewDidLoad() {
         let currentQuestion = questions[currentQuestionIndex]
         show(quiz: convert(model: currentQuestion))
         imageView.layer.masksToBounds = true
-        imageView.layer.cornerRadius = 8
-        imageView.layer.borderWidth = 1
+        imageView.layer.cornerRadius = 20
+        imageView.layer.borderWidth = 8
         super.viewDidLoad()
     }
     
@@ -123,13 +105,11 @@ final class MovieQuizViewController: UIViewController {
     private func show(quiz result: QuizResultsViewModel){
         let alert = UIAlertController(title: result.title, message: result.text, preferredStyle: .alert)
         
-        let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
-            self.currentQuestionIndex = 0
-            self.correctAnswers = 0
-            let firstQuestion = self.questions [self.currentQuestionIndex]
-            let viewModel = self.convert(model: firstQuestion)
-            
-            self.show(quiz: viewModel)
+        let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
+            guard let strongSelf = self else { return }
+            guard let firstQuestion = strongSelf.questions.first else { return }
+            let viewModel = strongSelf.convert(model: firstQuestion)
+            strongSelf.show(quiz: viewModel)
         }
         
         alert.addAction(action)
