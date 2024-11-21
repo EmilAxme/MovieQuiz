@@ -2,16 +2,20 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController {
     
+    @IBOutlet weak var yesButtonOutlet: UIButton!
+    @IBOutlet weak var noButtonOutlet: UIButton!
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
     
     @IBAction private func yesButtonClicked(_ sender: Any) {
         showAnswerResult(isCorrect: true)
+        enableButtonsAction(false)
     }
     
     @IBAction private func noButtonClicked(_ sender: Any) {
         showAnswerResult(isCorrect: false)
+        enableButtonsAction(false)
     }
     
     private var currentQuestionIndex = 0
@@ -78,7 +82,8 @@ final class MovieQuizViewController: UIViewController {
             imageView.layer.borderColor = UIColor.ypRed.cgColor
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-           self.showNextQuestionOrResults()
+            self.showNextQuestionOrResults()
+            self.enableButtonsAction(true)
         }
     }
     
@@ -106,7 +111,11 @@ final class MovieQuizViewController: UIViewController {
         let alert = UIAlertController(title: result.title, message: result.text, preferredStyle: .alert)
         
         let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
+            
+            
             guard let strongSelf = self else { return }
+            strongSelf.currentQuestionIndex = 0
+            strongSelf.correctAnswers = 0
             guard let firstQuestion = strongSelf.questions.first else { return }
             let viewModel = strongSelf.convert(model: firstQuestion)
             strongSelf.show(quiz: viewModel)
@@ -124,5 +133,15 @@ final class MovieQuizViewController: UIViewController {
             questionNumber: "\(currentQuestionIndex + 1)/\(questions.count)")
         imageView.layer.borderColor = UIColor.clear.cgColor
         return questionStep
+    }
+    
+    private func enableButtonsAction(_ enable: Bool){
+        if enable {
+            noButtonOutlet.isEnabled = true
+            yesButtonOutlet.isEnabled = true
+        } else {
+            yesButtonOutlet.isEnabled = false
+            noButtonOutlet.isEnabled = false
+        }
     }
 }
