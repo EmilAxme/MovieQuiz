@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertModelDelegate {
         
     @IBOutlet weak var yesButtonOutlet: UIButton!
     @IBOutlet weak var noButtonOutlet: UIButton!
@@ -21,6 +21,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private let questionsAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
+    private var alert: AlertPresenter?
     
     private var currentQuestionIndex = 0
     
@@ -29,6 +30,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        alert = AlertPresenter(delegate: self)
         questionFactory = QuestionFactory(delegate: self)
         
         questionFactory?.requestNextQuestion()
@@ -65,8 +67,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questionsAmount - 1 {
-            let result  = QuizResultsViewModel(title: "Этот раунд окончен!", text: "Ваш результат \(correctAnswers)/\(questionsAmount)", buttonText: "Сыграть еще раз")
-            show(quiz: result)
+            let result  = AlertModel(title: "Этот раунд окончен!", message: "Ваш результат \(correctAnswers)/\(questionsAmount)", buttonText: "Сыграть еще раз", completion: {[weak self]  in
+                guard let self else { return }
+                self.correctAnswers = 0
+                self.currentQuestionIndex = 0
+                self.questionFactory?.requestNextQuestion()
+})
+            alert?.presentAlert(with: result)
+
+            
         } else {
             currentQuestionIndex += 1
             
@@ -78,23 +87,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
-    }
-    
-    private func show(quiz result: QuizResultsViewModel){
-        let alert = UIAlertController(title: result.title, message: result.text, preferredStyle: .alert)
-        
-        let action = UIAlertAction(title: result.buttonText, style: .default) {  [weak self] _ in
-            guard let self else { return }
-            self.correctAnswers = 0
-            self.currentQuestionIndex = 0
-            self.questionFactory?.requestNextQuestion()
-        }
-        
-        
-        
-        alert.addAction(action)
-        
-        self.present(alert, animated: true, completion: nil)
     }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
