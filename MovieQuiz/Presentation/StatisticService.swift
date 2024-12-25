@@ -36,6 +36,7 @@ final class StatisticServiceImplementation: StatisticServiceProtocol {
         }
         return Double(correct) / Double(totalQuestions) * 100
     }
+    
     var totalCorrect: Int {
         get {
             storage.integer(forKey: Keys.totalCorrect.rawValue)

@@ -1,9 +1,10 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertModelDelegate {
-        
-    @IBOutlet weak var yesButtonOutlet: UIButton!
-    @IBOutlet weak var noButtonOutlet: UIButton!
+    
+    @IBOutlet private weak var loadingIndicatorOutlet: UIActivityIndicatorView!
+    @IBOutlet private weak var yesButtonOutlet: UIButton!
+    @IBOutlet private weak var noButtonOutlet: UIButton!
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
@@ -33,13 +34,38 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         
         statistics = StatisticServiceImplementation()
         alert = ResultAlertPresenter(delegate: self)
-        questionFactory = QuestionFactory(delegate: self)
+        questionFactory = QuestionFactory(delegate: self, moviesLoader: MoviesLoader())
         guard let questionFactory else { return }
         
-        questionFactory.requestNextQuestion()
+        questionFactory.loadData()
         imageView.layer.masksToBounds = true
         imageView.layer.cornerRadius = 20
         imageView.layer.borderWidth = 8
+    }
+    
+    private func showNetworkError(message: String) {
+        loadingIndicatorOutlet.isHidden = true
+        
+        let errorAlert = AlertModel(
+            title: message,
+            message: nil,
+            buttonText: "Попробуй еще раз",
+            completion: {[weak self] in
+                guard let self else {return}
+                guard let factory = self.questionFactory else {return}
+                self.currentQuestionIndex = 0
+                self.correctAnswers = 0
+                
+                factory.requestNextQuestion()
+            }
+        )
+        guard let alert else { return }
+        alert.presentAlert(with: errorAlert)
+    }
+    
+    private func showLoadingIndicator() {
+        loadingIndicatorOutlet.isHidden = false
+        loadingIndicatorOutlet.startAnimating()
     }
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
@@ -52,6 +78,16 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
             guard let self else { return }
             self.show(quiz: viewModel)
         }
+    }
+    
+    func didLoadDataFromServer() {
+        guard let factory = questionFactory else { return }
+        loadingIndicatorOutlet.isHidden = true
+        factory.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: any Error) {
+        showNetworkError(message: error.localizedDescription)
     }
     
     private func showAnswerResult(isCorrect: Bool) {
@@ -94,7 +130,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questionStep = QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
         imageView.layer.borderColor = UIColor.clear.cgColor
@@ -117,12 +153,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
             message: result.text,
             buttonText: result.buttonText,
             completion: {[weak self]  in
-            guard let self else { return }
-            guard let factory = self.questionFactory else { return }
-            self.correctAnswers = 0
-            self.currentQuestionIndex = 0
-            factory.requestNextQuestion()
-})
+                guard let self else { return }
+                guard let factory = self.questionFactory else { return }
+                self.correctAnswers = 0
+                self.currentQuestionIndex = 0
+                factory.requestNextQuestion()
+            })
         guard let alert else { return }
         alert.presentAlert(with: result)
     }

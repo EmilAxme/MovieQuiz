@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-class ResultAlertPresenter {
+final class ResultAlertPresenter {
     weak var delegate: UIViewController?
     
     init(delegate: UIViewController?) {
