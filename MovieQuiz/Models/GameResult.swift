@@ -8,4 +8,5 @@ struct GameResult {
     func bestGame(current: GameResult) -> Bool {
         current.correct < correct
     }
+    
 }

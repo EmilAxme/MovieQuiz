@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertModelDelegate {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     @IBOutlet private weak var loadingIndicatorOutlet: UIActivityIndicatorView!
     @IBOutlet private weak var yesButtonOutlet: UIButton!
@@ -25,13 +25,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     private var alert: ResultAlertPresenter?
     private var statistics: StatisticServiceProtocol?
     
-    private var currentQuestionIndex = 0
+    private var currentQuestionIndex: Int = .zero
     
-    private var correctAnswers = 0
+    private var correctAnswers: Int = .zero
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        loadingIndicatorOutlet.hidesWhenStopped = true
+        showLoadingIndicator()
         statistics = StatisticServiceImplementation()
         alert = ResultAlertPresenter(delegate: self)
         questionFactory = QuestionFactory(delegate: self, moviesLoader: MoviesLoader())
@@ -44,12 +46,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     }
     
     private func showNetworkError(message: String) {
-        loadingIndicatorOutlet.isHidden = true
         
         let errorAlert = AlertModel(
             title: message,
             message: nil,
             buttonText: "Попробуй еще раз",
+            
             completion: {[weak self] in
                 guard let self else {return}
                 guard let factory = self.questionFactory else {return}
@@ -58,18 +60,24 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
                 
                 factory.requestNextQuestion()
             }
+            
         )
+        
         guard let alert else { return }
         alert.presentAlert(with: errorAlert)
     }
     
-    private func showLoadingIndicator() {
-        loadingIndicatorOutlet.isHidden = false
+    func showLoadingIndicator() {
         loadingIndicatorOutlet.startAnimating()
+    }
+    
+    private func hideLoadingIndicator() {
+        loadingIndicatorOutlet.stopAnimating()
     }
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else { return }
+        hideLoadingIndicator()
         
         currentQuestion = question
         let viewModel = convert(model: question)
@@ -78,11 +86,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
             guard let self else { return }
             self.show(quiz: viewModel)
         }
+        
     }
     
     func didLoadDataFromServer() {
         guard let factory = questionFactory else { return }
-        loadingIndicatorOutlet.isHidden = true
         factory.requestNextQuestion()
     }
     
@@ -92,74 +100,102 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     private func showAnswerResult(isCorrect: Bool) {
         guard let currentQuestion else { return }
+        
         if isCorrect == currentQuestion.correctAnswer {
             correctAnswers += 1
             imageView.layer.borderColor = UIColor.ypGreen.cgColor
-        } else {
+        }
+        
+        else {
             imageView.layer.borderColor = UIColor.ypRed.cgColor
         }
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self else { return }
             self.showNextQuestionOrResults()
             self.enableButtonsAction(true)
         }
+        
     }
     
     private func showNextQuestionOrResults() {
+        
         if currentQuestionIndex == questionsAmount - 1 {
             guard let statistics else { return }
             statistics.store(correct: correctAnswers, total: questionsAmount)
+            
             let result = QuizResultsViewModel(
                 title: "Этот раунд окончен!",
                 text:"Ваш результат \(correctAnswers)/\(questionsAmount) \n Количество сыгранных квизов \(statistics.gamesCount) \n Рекорд: \(statistics.bestGame.correct) / \(statistics.bestGame.total) (\(statistics.bestGame.date.dateTimeString)) \n Средняя точность: \(String(format: "%.2f", statistics.totalAccuracy))%" ,
                 buttonText: "Сыграть еще раз"
             )
+            
             show(quiz: result)
-        } else {
+        }
+        
+        else
+        {
             currentQuestionIndex += 1
             guard let questionFactory else { return }
             questionFactory.requestNextQuestion()
         }
+        
     }
     
     private func show(quiz step: QuizStepViewModel) {
+        
         imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
+        
     }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
+        
         let questionStep = QuizStepViewModel(
             image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
+        
         imageView.layer.borderColor = UIColor.clear.cgColor
         return questionStep
+        
     }
     
     private func enableButtonsAction(_ enable: Bool){
+        
         if enable {
             noButtonOutlet.isEnabled = true
             yesButtonOutlet.isEnabled = true
-        } else {
+        }
+        
+        else {
             yesButtonOutlet.isEnabled = false
             noButtonOutlet.isEnabled = false
         }
+        
     }
     
     private func show(quiz result: QuizResultsViewModel) {
+        
         let result  = AlertModel(
+            
             title: result.title,
             message: result.text,
             buttonText: result.buttonText,
-            completion: {[weak self]  in
+            completion: {
+                [weak self]  in
                 guard let self else { return }
                 guard let factory = self.questionFactory else { return }
                 self.correctAnswers = 0
                 self.currentQuestionIndex = 0
                 factory.requestNextQuestion()
-            })
+            }
+        
+        )
+        
         guard let alert else { return }
         alert.presentAlert(with: result)
     }
+    
 }
