@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "DAC490FE-43A9-4519-BC96-30C841FA7722",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:MovieQuiz.xcodeproj",
+        "identifier" : "20B270082D33C6DE00B97ABD",
+        "name" : "MovieQuizUITests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:MovieQuiz.xcodeproj",
+        "identifier" : "20B26FE62D31CC5900B97ABD",
+        "name" : "MovieQuizTests"
+      }
+    }
+  ],
+  "version" : 1
+}
