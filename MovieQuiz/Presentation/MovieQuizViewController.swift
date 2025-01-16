@@ -38,7 +38,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         super.viewDidLoad()
         
         loadingIndicatorOutlet.hidesWhenStopped = true
-        showLoadingIndicator()
+        loadingIndicatorIsHidden(false)
         statistics = StatisticServiceImplementation()
         presenter.viewController = self
         
@@ -75,12 +75,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         alert.presentAlert(with: errorAlert)
     }
     
-    func showLoadingIndicator() {
-        loadingIndicatorOutlet.startAnimating()
-    }
-    
-    private func hideLoadingIndicator() {
-        loadingIndicatorOutlet.stopAnimating()
+    private func loadingIndicatorIsHidden(_ isHidden: Bool) {
+        isHidden ? loadingIndicatorOutlet.stopAnimating() : loadingIndicatorOutlet.startAnimating()
     }
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
@@ -90,7 +86,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     func didLoadDataFromServer() {
         guard let factory = questionFactory else { return }
         factory.requestNextQuestion()
-        hideLoadingIndicator()
+        loadingIndicatorIsHidden(true)
     }
     
     func didFailToLoadData(with error: any Error) {
