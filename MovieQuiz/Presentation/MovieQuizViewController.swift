@@ -28,7 +28,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 //    private var statistics: StatisticServiceProtocol?
     private let presenter = MovieQuizPresenter()
     
-//    private var correctAnswers: Int = .zero
+    private var correctAnswers: Int = .zero
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -102,7 +102,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self else { return }
-            presenter.showNextQuestionOrResults()
+            self.presenter.correctAnswers = self.correctAnswers
+            self.presenter.questionFactory = self.questionFactory
+            self.presenter.showNextQuestionOrResults()
             self.enableButtonsAction(true)
         }
         
