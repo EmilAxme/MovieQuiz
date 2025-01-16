@@ -1,6 +1,16 @@
 import UIKit
 
-final class MovieQuizPresenter {
+final class MovieQuizPresenter: QuestionFactoryDelegate {
+    func didLoadDataFromServer() {
+        viewController?.loadingIndicatorIsHidden(true)
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: any Error) {
+        let message = error.localizedDescription
+        viewController?.showNetworkError(message: message)
+    }
+    
     
     private var statistics: StatisticServiceProtocol = StatisticServiceImplementation()
     
@@ -9,13 +19,20 @@ final class MovieQuizPresenter {
     var correctAnswers: Int = .zero
     
     var currentQuestion: QuizQuestion?
-    weak var viewController: MovieQuizViewController?
+    private weak var viewController: MovieQuizViewController?
     
-    func yesButtonClicked(_ sender: Any) {
+    init(viewController: MovieQuizViewController) {
+        self.viewController = viewController
+        questionFactory = QuestionFactory(delegate: self, moviesLoader: MoviesLoader(networkClient: NetworkClient()))
+        questionFactory?.loadData()
+        viewController.loadingIndicatorIsHidden(false)
+    }
+    
+    func yesButtonClicked() {
         didAnswer(isYes: true)
     }
     
-    func noButtonClicked(_ sender: Any) {
+    func noButtonClicked() {
         didAnswer(isYes: false)
     }
     
@@ -29,6 +46,7 @@ final class MovieQuizPresenter {
     func restartGame() {
         currentQuestionIndex = 0
         correctAnswers = 0
+        questionFactory?.requestNextQuestion()
     }
     
     func switchToNextQuestion() {
@@ -80,9 +98,8 @@ final class MovieQuizPresenter {
         let viewModel = convert(model: currentQuestion)
         
         DispatchQueue.main.async {[weak self] in
-            guard let viewController = self?.viewController else { return }
             
-            viewController.show(quiz: viewModel)
+            self?.viewController?.show(quiz: viewModel)
         }
         
     }
