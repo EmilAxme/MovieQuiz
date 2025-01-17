@@ -85,8 +85,27 @@
 		AD7AFA542836189F00399704 /* Array+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2015EEC02D39D8FB00C8D39D /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ArrayTests.swift,
+				MoviesLoaderTests.swift,
+			);
+			target = 20B26FE62D31CC5900B97ABD /* MovieQuizTests */;
+		};
+		2015EEC12D39D8FB00C8D39D /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ArrayTests.swift,
+				MoviesLoaderTests.swift,
+			);
+			target = 20B270082D33C6DE00B97ABD /* MovieQuizUITests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		20B26FE82D31CC5900B97ABD /* MovieQuizTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MovieQuizTests; sourceTree = "<group>"; };
+		2015EEBD2D39D8FB00C8D39D /* MovieQuizTests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (2015EEC02D39D8FB00C8D39D /* PBXFileSystemSynchronizedBuildFileExceptionSet */, 2015EEC12D39D8FB00C8D39D /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MovieQuizTests; sourceTree = "<group>"; };
 		20B2700A2D33C6DE00B97ABD /* MovieQuizUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MovieQuizUITests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -140,6 +159,7 @@
 		6113423A2B701CF8003FC2A4 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				20F06C502D00907200F1A37C /* StatisticService.swift */,
 				2009A2782CF34802009A0A2C /* QuestionFactory.swift */,
 				2009A2822CF47415009A0A2C /* QuestionFactoryProtocol.swift */,
 				20F06C4C2D008DA800F1A37C /* StatisticServiceProtocol.swift */,
@@ -156,7 +176,6 @@
 				AD1ABAB52831907B00B3E448 /* MovieQuizViewController.swift */,
 				AD1ABAB72831907B00B3E448 /* Main.storyboard */,
 				20F06BF32CF8AC3D00F1A37C /* ResultAlertPresenter.swift */,
-				20F06C502D00907200F1A37C /* StatisticService.swift */,
 				2015EEA02D39504400C8D39D /* MovieQuizPresenter.swift */,
 			);
 			path = Presentation;
@@ -177,8 +196,8 @@
 			isa = PBXGroup;
 			children = (
 				AD1ABAB02831907B00B3E448 /* MovieQuiz */,
-				20B26FE82D31CC5900B97ABD /* MovieQuizTests */,
 				20B2700A2D33C6DE00B97ABD /* MovieQuizUITests */,
+				2015EEBD2D39D8FB00C8D39D /* MovieQuizTests */,
 				AD1ABAAF2831907B00B3E448 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -233,9 +252,6 @@
 			dependencies = (
 				20B26FEC2D31CC5900B97ABD /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				20B26FE82D31CC5900B97ABD /* MovieQuizTests */,
-			);
 			name = MovieQuizTests;
 			packageProductDependencies = (
 			);
@@ -257,6 +273,7 @@
 				20B270152D33C8BE00B97ABD /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
+				2015EEBD2D39D8FB00C8D39D /* MovieQuizTests */,
 				20B2700A2D33C6DE00B97ABD /* MovieQuizUITests */,
 			);
 			name = MovieQuizUITests;
