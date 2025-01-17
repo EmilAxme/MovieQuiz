@@ -4,13 +4,13 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     // MARK: - Properties and init
     
-    let questionsAmount: Int = 10
+    private let questionsAmount: Int = 10
     private var currentQuestionIndex: Int = .zero
-    var correctAnswers: Int = .zero
+    private var correctAnswers: Int = .zero
     
-    private var statisticService: StatisticServiceProtocol!
     var questionFactory: QuestionFactoryProtocol?
-    var currentQuestion: QuizQuestion?
+    private var statisticService: StatisticServiceProtocol!
+    private var currentQuestion: QuizQuestion?
     private weak var viewController: MovieQuizViewControllerProtocol?
     
     init(viewController: MovieQuizViewControllerProtocol) {
@@ -63,7 +63,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     // MARK: - Functions
     
-    func proceedWithAnswer(isCorrect: Bool) {
+    private func proceedWithAnswer(isCorrect: Bool) {
         
         guard let currentQuestion else { return }
         guard let viewController else { return }
@@ -83,7 +83,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
     }
     
-    func convert(model: QuizQuestion) -> QuizStepViewModel {
+    private func convert(model: QuizQuestion) -> QuizStepViewModel {
         
         let questionStep = QuizStepViewModel(
             image: UIImage(data: model.image) ?? UIImage(),
@@ -94,7 +94,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
     }
     
-    func didAnswer(isYes: Bool) {
+    private func didAnswer(isYes: Bool) {
         
         guard let viewController else { return }
         
@@ -103,7 +103,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
     }
     
-    func isLastQuestion() -> Bool {
+    private func isLastQuestion() -> Bool {
         currentQuestionIndex == questionsAmount - 1
     }
     
@@ -113,11 +113,11 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         questionFactory?.requestNextQuestion()
     }
     
-    func switchToNextQuestion() {
+    private func switchToNextQuestion() {
         currentQuestionIndex += 1
     }
     
-    func proceedToNextQuestionOrResults() {
+    private func proceedToNextQuestionOrResults() {
         guard let viewController else { return }
         
         if self.isLastQuestion() {
@@ -133,7 +133,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     //MARK: - Result Alert function
     
-    func makeResultMessage() -> QuizResultsViewModel {
+    private func makeResultMessage() -> QuizResultsViewModel {
         statisticService.store(correct: correctAnswers, total: self.questionsAmount)
         
         let result = QuizResultsViewModel(
