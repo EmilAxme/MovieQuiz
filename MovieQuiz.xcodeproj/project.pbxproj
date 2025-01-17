@@ -92,6 +92,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				ArrayTests.swift,
+				MovieQuizPresenterTests.swift,
 				MoviesLoaderTests.swift,
 			);
 			target = 20B26FE62D31CC5900B97ABD /* MovieQuizTests */;
@@ -100,6 +101,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				ArrayTests.swift,
+				MovieQuizPresenterTests.swift,
 				MoviesLoaderTests.swift,
 			);
 			target = 20B270082D33C6DE00B97ABD /* MovieQuizUITests */;

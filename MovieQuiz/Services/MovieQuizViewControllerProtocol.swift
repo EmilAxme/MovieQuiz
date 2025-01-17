@@ -7,4 +7,6 @@ protocol MovieQuizViewControllerProtocol: AnyObject {
     func loadingIndicatorIsHidden(_ isHidden: Bool)
     
     func showNetworkError(message: String)
+    
+    func enableButtonsAction(_ enable: Bool)
 }
