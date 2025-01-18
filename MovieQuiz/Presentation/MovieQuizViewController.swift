@@ -17,11 +17,11 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     // MARK: - Actions
     
     @IBAction private func yesButtonClicked(_ sender: Any) {
-        presenter.yesButtonClicked()
+        presenter.ButtonClicked(true)
     }
     
     @IBAction private func noButtonClicked(_ sender: Any) {
-        presenter.noButtonClicked()
+        presenter.ButtonClicked(false)
     }
     
     // MARK: - Lifecycle
@@ -77,8 +77,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
             title: result.title,
             message: result.text,
             buttonText: result.buttonText,
-            completion: {
-                [weak self]  in
+            completion: {[weak self]  in
                 guard let self else { return }
                 
                 presenter.restartGame()

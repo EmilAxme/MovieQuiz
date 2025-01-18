@@ -9,7 +9,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private var correctAnswers: Int = .zero
     
     var questionFactory: QuestionFactoryProtocol?
-    private var statisticService: StatisticServiceProtocol!
+    private var statisticService: StatisticServiceProtocol?
     private var currentQuestion: QuizQuestion?
     private weak var viewController: MovieQuizViewControllerProtocol?
     
@@ -19,35 +19,35 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         self.viewController = viewController
         
         questionFactory = QuestionFactory(delegate: self, moviesLoader: MoviesLoader(networkClient: NetworkClient()))
-        questionFactory?.loadData()
+        guard let questionFactory else { return }
+        
+        questionFactory.loadData()
         viewController.loadingIndicatorIsHidden(false)
     }
     
     // MARK: - Actions
     
-    func yesButtonClicked() {
-        didAnswer(isYes: true)
-    }
-    
-    func noButtonClicked() {
-        didAnswer(isYes: false)
+    func ButtonClicked(_ answer: Bool) {
+        didAnswer(isYes: answer)
     }
     
     // MARK: - QuestionFactoryDelegate
     
     func didLoadDataFromServer() {
-        viewController?.loadingIndicatorIsHidden(true)
-        questionFactory?.requestNextQuestion()
+        guard let viewController, let questionFactory else { return }
+        
+        viewController.loadingIndicatorIsHidden(true)
+        questionFactory.requestNextQuestion()
     }
     
     func didFailToLoadData(with error: any Error) {
+        guard let viewController else { return }
+        
         let message = error.localizedDescription
-        viewController?.showNetworkError(message: message)
+        viewController.showNetworkError(message: message)
     }
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else { return }
-        
         currentQuestion = question
         
         guard let currentQuestion else { return }
@@ -55,8 +55,9 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         let viewModel = convert(model: currentQuestion)
         
         DispatchQueue.main.async {[weak self] in
-            
-            self?.viewController?.show(quiz: viewModel)
+            guard let self else { return }
+            guard let viewController = self.viewController?.show(quiz: viewModel) else { return }
+            viewController
         }
         
     }
@@ -64,9 +65,8 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     // MARK: - Functions
     
     private func proceedWithAnswer(isCorrect: Bool) {
-        
-        guard let currentQuestion else { return }
-        guard let viewController else { return }
+        guard let currentQuestion,
+                let viewController else { return }
         
         if isCorrect == currentQuestion.correctAnswer {
             correctAnswers += 1
@@ -83,8 +83,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
     }
     
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        
+    func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questionStep = QuizStepViewModel(
             image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
@@ -95,7 +94,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     private func didAnswer(isYes: Bool) {
-        
         guard let viewController else { return }
         
         self.proceedWithAnswer(isCorrect: isYes)
@@ -134,11 +132,12 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     //MARK: - Result Alert function
     
     private func makeResultMessage() -> QuizResultsViewModel {
-        statisticService.store(correct: correctAnswers, total: self.questionsAmount)
+        guard let statisticService else { return QuizResultsViewModel(title: "", text: "", buttonText: "");}
+        statisticService.store(correct: correctAnswers, total: questionsAmount)
         
         let result = QuizResultsViewModel(
             title: "Этот раунд окончен!",
-            text:"Ваш результат \(correctAnswers)/\(self.questionsAmount) \n Количество сыгранных квизов \(statisticService.gamesCount) \n Рекорд: \(statisticService.bestGame.correct) / \(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString)) \n Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%" ,
+            text:"Ваш результат \(correctAnswers)/\(questionsAmount) \n Количество сыгранных квизов \(statisticService.gamesCount) \n Рекорд: \(statisticService.bestGame.correct) / \(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString)) \n Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%" ,
             buttonText: "Сыграть еще раз"
         )
         
